@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import 'bootstrap/dist/css/bootstrap.css';
-import '../css/App.css';
 import { Link } from 'react-router-dom';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import '../css/App.css';
 
 const ProfileList = () => {
     const [users, setUsers] = useState([]);
+    const [search, setSearch] = useState('');
 
     useEffect(() => {
         fetch('https://express-t4.onrender.com/api/users')
@@ -13,21 +14,37 @@ const ProfileList = () => {
             .catch(err => console.error(err));
     }, []);
 
+    const handleSearch = (event) => {
+        setSearch(event.target.value);
+    };
+
+    const filteredUsers = users.filter(user => 
+        user.name.toLowerCase().includes(search.toLowerCase())
+    );
+
     return (
         <div className="container mt-5">
-            <div className="jumbotron mb-5">
+            <div className="jumbotron">
                 <h2 className="display-5 main-header">Profile Listing</h2>
             </div>
+            <input
+                type="text"
+                placeholder="Search by name"
+                value={search}
+                onChange={handleSearch}
+                className="form-control mb-4"
+            />
             <div className="row">
-                {users.map(user => (
-                    <div className="col-lg-12" key={user._id}>
-                        <div className="card p-4 mb-4 d-flex flex-row align-items-center">
-                            <img src={user.picture} className="card-img-top" alt={user.name} style={{width: '50px', height: '50px'}} />
+                {filteredUsers.map((user, index) => (
+                    <div className="col-md-4" key={index}>
+                        <div className="card mb-4 shadow-sm">
+                            <img className="card-img-top" src={user.picture} alt={user.name} style={{ width: '100%', height: '15vw', objectFit: 'cover' }} />
                             <div className="card-body">
                                 <h5 className="card-title">{user.name}</h5>
                                 <p className="card-text">{user.email}</p>
-                                <p className="card-text">{user.phone}</p>
-                                <Link to={`/profile/${user._id}`} className="btn btn-primary">View Profile</Link>
+                                <div className="d-flex justify-content-between align-items-center">
+                                    <Link to={`/profile/${user._id}`} className="btn btn-sm btn-outline-secondary">View Profile</Link>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -35,6 +52,6 @@ const ProfileList = () => {
             </div>
         </div>
     );
-}
+};
 
 export default ProfileList;
